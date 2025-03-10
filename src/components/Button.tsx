@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { StyleSheet, TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle, Animated, View } from 'react-native';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import useTheme from '../hooks/useTheme';
 
 interface ButtonProps {
@@ -13,6 +13,9 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
+  elevation?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -25,8 +28,28 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   icon,
+  iconPosition = 'left',
+  fullWidth = false,
+  elevation = true,
 }) => {
   const { isDarkMode } = useTheme();
+  const animatedValue = React.useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(animatedValue, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(animatedValue, {
+      toValue: 1,
+      friction: 4,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const getButtonStyles = () => {
     let buttonStyle: ViewStyle = {};
@@ -37,6 +60,7 @@ const Button: React.FC<ButtonProps> = ({
       case 'primary':
         buttonStyle = {
           backgroundColor: COLORS.primary,
+          ...(elevation && !disabled ? SHADOWS.medium : {}),
         };
         textStyleVariant = {
           color: COLORS.white,
@@ -45,6 +69,7 @@ const Button: React.FC<ButtonProps> = ({
       case 'secondary':
         buttonStyle = {
           backgroundColor: COLORS.secondary,
+          ...(elevation && !disabled ? SHADOWS.medium : {}),
         };
         textStyleVariant = {
           color: COLORS.black,
@@ -53,7 +78,7 @@ const Button: React.FC<ButtonProps> = ({
       case 'outline':
         buttonStyle = {
           backgroundColor: 'transparent',
-          borderWidth: 1,
+          borderWidth: 1.5,
           borderColor: isDarkMode ? COLORS.primaryLight : COLORS.primary,
         };
         textStyleVariant = {
@@ -77,6 +102,7 @@ const Button: React.FC<ButtonProps> = ({
           ...buttonStyle,
           paddingVertical: SIZES.base,
           paddingHorizontal: SIZES.padding,
+          borderRadius: SIZES.radius - 4,
         };
         textStyleVariant = {
           ...textStyleVariant,
@@ -89,6 +115,7 @@ const Button: React.FC<ButtonProps> = ({
           ...buttonStyle,
           paddingVertical: SIZES.base * 1.5,
           paddingHorizontal: SIZES.padding,
+          borderRadius: SIZES.radius,
         };
         textStyleVariant = {
           ...textStyleVariant,
@@ -101,6 +128,7 @@ const Button: React.FC<ButtonProps> = ({
           ...buttonStyle,
           paddingVertical: SIZES.base * 2,
           paddingHorizontal: SIZES.padding * 1.5,
+          borderRadius: SIZES.radius,
         };
         textStyleVariant = {
           ...textStyleVariant,
@@ -108,6 +136,14 @@ const Button: React.FC<ButtonProps> = ({
           fontSize: SIZES.body1,
         };
         break;
+    }
+
+    // Full width style
+    if (fullWidth) {
+      buttonStyle = {
+        ...buttonStyle,
+        width: '100%',
+      };
     }
 
     // Disabled style
@@ -130,26 +166,41 @@ const Button: React.FC<ButtonProps> = ({
   const { buttonStyle, textStyleVariant } = getButtonStyles();
 
   return (
-    <TouchableOpacity
-      style={[styles.button, buttonStyle, style]}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.7}
+    <Animated.View
+      style={{
+        transform: [{ scale: animatedValue }],
+        width: fullWidth ? '100%' : 'auto',
+      }}
     >
-      {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'outline' || variant === 'text' ? COLORS.primary : COLORS.white}
-        />
-      ) : (
-        <>
-          {icon && icon}
-          <Text style={[styles.text, textStyleVariant, icon && styles.textWithIcon, textStyle]}>
-            {title}
-          </Text>
-        </>
-      )}
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, buttonStyle, style]}
+        onPress={onPress}
+        disabled={disabled || loading}
+        activeOpacity={0.8}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'outline' || variant === 'text' ? COLORS.primary : COLORS.white}
+          />
+        ) : (
+          <>
+            {icon && iconPosition === 'left' && <View style={styles.iconLeft}>{icon}</View>}
+            <Text style={[
+              styles.text, 
+              textStyleVariant, 
+              icon && iconPosition === 'left' ? styles.textWithIcon : null, 
+              textStyle
+            ]}>
+              {title}
+            </Text>
+            {icon && iconPosition === 'right' && <View style={styles.iconRight}>{icon}</View>}
+          </>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -164,6 +215,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   textWithIcon: {
+    marginLeft: SIZES.base,
+  },
+  iconLeft: {
+    marginRight: SIZES.base,
+  },
+  iconRight: {
     marginLeft: SIZES.base,
   },
 });

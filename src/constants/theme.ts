@@ -31,7 +31,7 @@ export const COLORS = {
   darkGrey: '#616161',
   
   // Background colors
-  background: '#f5f5f5',
+  background: '#f8f9fa',
   card: '#ffffff',
   surface: '#ffffff',
   
@@ -49,19 +49,19 @@ export const COLORS = {
   darkTextDisabled: '#6e6e6e',
   
   // Category colors
-  food: '#ff5722',
-  transportation: '#2196f3',
-  shopping: '#e91e63',
-  entertainment: '#9c27b0',
-  housing: '#3f51b5',
-  utilities: '#00bcd4',
-  healthcare: '#4caf50',
-  personalCare: '#8bc34a',
-  education: '#ffc107',
+  food: '#4CAF50',
+  transportation: '#2196F3',
+  shopping: '#E91E63',
+  entertainment: '#9C27B0',
+  housing: '#3F51B5',
+  utilities: '#00BCD4',
+  healthcare: '#009688',
+  personalCare: '#8BC34A',
+  education: '#FFC107',
   travel: '#795548',
-  income: '#4caf50',
-  investments: '#009688',
-  other: '#9e9e9e',
+  income: '#4CAF50',
+  investments: '#00BCD4',
+  other: '#9E9E9E',
 };
 
 export const FONTS = {
@@ -87,7 +87,7 @@ export const SIZES = {
   // Global sizes
   base: 8,
   font: 14,
-  radius: 8,
+  radius: 12,
   padding: 16,
   margin: 16,
   
